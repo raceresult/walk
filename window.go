@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build windows
 // +build windows
 
 package walk
@@ -12,6 +13,7 @@ import (
 	"image"
 	"runtime"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"syscall"
 	"unsafe"
@@ -447,6 +449,7 @@ var (
 	registeredWindowClasses = make(map[string]bool)
 	defaultWndProcPtr       uintptr
 	hwnd2WindowBase         = make(map[win.HWND]*WindowBase)
+	hwnd2WindowBaseMux      sync.RWMutex
 )
 
 func init() {
@@ -645,7 +648,9 @@ func initWindowWithCfg(cfg *windowCfg) error {
 		}
 	}()
 
+	hwnd2WindowBaseMux.Lock()
 	hwnd2WindowBase[wb.hWnd] = wb
+	hwnd2WindowBaseMux.Unlock()
 
 	if !registeredWindowClasses[cfg.ClassName] {
 		// We subclass all windows of system classes.
@@ -886,7 +891,10 @@ func (wb *WindowBase) Dispose() {
 		wb.disposingPublisher.Publish()
 
 		wb.hWnd = 0
-		if _, ok := hwnd2WindowBase[hWnd]; ok {
+		hwnd2WindowBaseMux.RLock()
+		_, ok := hwnd2WindowBase[hWnd]
+		hwnd2WindowBaseMux.RUnlock()
+		if ok {
 			win.DestroyWindow(hWnd)
 		}
 	}
@@ -2121,6 +2129,8 @@ func (wb *WindowBase) WriteState(state string) error {
 }
 
 func windowFromHandle(hwnd win.HWND) Window {
+	hwnd2WindowBaseMux.RLock()
+	defer hwnd2WindowBaseMux.Unlock()
 	if wb := hwnd2WindowBase[hwnd]; wb != nil {
 		return wb.window
 	}
@@ -2500,7 +2510,9 @@ func (wb *WindowBase) WndProc(hwnd win.HWND, msg uint32, wParam, lParam uintptr)
 			win.SetWindowLongPtr(wb.hWnd, win.GWLP_WNDPROC, wb.origWndProcPtr)
 		}
 
+		hwnd2WindowBaseMux.Lock()
 		delete(hwnd2WindowBase, hwnd)
+		hwnd2WindowBaseMux.Unlock()
 
 		wb.window.Dispose()
 		wb.hWnd = 0
