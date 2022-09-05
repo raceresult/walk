@@ -2130,7 +2130,7 @@ func (wb *WindowBase) WriteState(state string) error {
 
 func windowFromHandle(hwnd win.HWND) Window {
 	hwnd2WindowBaseMux.RLock()
-	defer hwnd2WindowBaseMux.Unlock()
+	defer hwnd2WindowBaseMux.RUnlock()
 	if wb := hwnd2WindowBase[hwnd]; wb != nil {
 		return wb.window
 	}
