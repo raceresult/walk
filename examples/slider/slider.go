@@ -7,8 +7,7 @@ package main
 import (
 	"log"
 
-	"github.com/lxn/walk"
-	. "github.com/lxn/walk/declarative"
+	"github.com/raceresult/walk"
 )
 
 func main() {

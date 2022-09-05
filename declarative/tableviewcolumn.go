@@ -7,7 +7,7 @@
 package declarative
 
 import (
-	"github.com/lxn/walk"
+	"github.com/raceresult/walk"
 )
 
 type Alignment1D uint

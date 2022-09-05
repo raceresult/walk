@@ -13,8 +13,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/lxn/walk"
-	"gopkg.in/Knetic/govaluate.v3"
+	"github.com/raceresult/walk"
 )
 
 var (

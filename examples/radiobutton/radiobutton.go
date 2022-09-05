@@ -8,10 +8,6 @@ import (
 	"fmt"
 )
 
-import (
-	. "github.com/lxn/walk/declarative"
-)
-
 type Foo struct {
 	Bar string
 	Baz int

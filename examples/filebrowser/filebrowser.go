@@ -12,8 +12,7 @@ import (
 )
 
 import (
-	"github.com/lxn/walk"
-	. "github.com/lxn/walk/declarative"
+	"github.com/raceresult/walk"
 )
 
 type Directory struct {

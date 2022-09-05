@@ -7,8 +7,8 @@
 package declarative
 
 import (
-	"github.com/lxn/walk"
 	"github.com/lxn/win"
+	"github.com/raceresult/walk"
 )
 
 type GradientComposite struct {
